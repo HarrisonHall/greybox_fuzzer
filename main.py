@@ -17,7 +17,7 @@ if __name__ == "__main__":
     # Run tests
     for test in all_tests:
         print(f"Starting test \"{test}\"")
-        test_inst = Instrumentation()
+        test_inst = Instrumentation() # We can make this multithreaded or not, idc
         test_mat = Matryoshka() # TODO implement matryoshka
         for i in range(MAX_TEST_LENGTH):
             value = test_mat.next_value()
