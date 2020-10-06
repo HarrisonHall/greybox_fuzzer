@@ -16,7 +16,7 @@ class Test():
 
     def visited_all_branches(self, instrumentation):
         """
-        True iff all branches have been visited.
+        True if all branches have been visited.
         """
         return (
             len(instrumentation.position_to_values) == self.branches

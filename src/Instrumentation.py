@@ -1,6 +1,6 @@
 class Instrumentation:
     """
-    Provide intstrumentation to tests like a greybox fuzzer would.
+    Provide instrumentation to test like a greybox fuzzer would.
     """
     
     NEW_POSITION, OLD_POSITION = range(2)
