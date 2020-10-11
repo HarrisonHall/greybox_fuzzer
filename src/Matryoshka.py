@@ -25,6 +25,7 @@ def get_args(original, indexes, new):
     return final_list
 
 def find_effective_prior_cond_stmt(
+        test,
         new_conditional,
         last_conditionals
 ):
@@ -36,8 +37,8 @@ def find_effective_prior_cond_stmt(
     Returns: effective prior conditional statements of new_conditional
     Basically: returns a list of branches that matter
     """
-    O = set()  # Set of all effective prior conditional statements
-    uf = UF(len(last_conditionals))
+    O = set()
+    uf = UF(test.arguments)
     bs = None
     for statement in last_conditionals:
         T = statement.args
@@ -46,7 +47,7 @@ def find_effective_prior_cond_stmt(
                 if t1 != t2:
                     uf.union(t1, t2)
                     bs = new_conditional.args[0]
-    if bs == None:
+    if bs is None:
         return []
     for statement in last_conditionals:
         b = statement.args[0]
@@ -62,6 +63,7 @@ def find_input(
         *args
 ):
     """
+    Find if input can be possibly changed to satisfy branch condition.
     """
     last_conditionals = last_conditionals.copy()
     
@@ -72,21 +74,16 @@ def find_input(
         )
     ])
     i = all_possibilities.pop()
-    while not new_conditional(instrumentation, get_args(args, new_conditional.args, i)) and len(all_possibilities) > 0:
-        print(len(all_possibilities))
+    while (not new_conditional(
+            instrumentation, get_args(args, new_conditional.args, i)
+    ) and len(all_possibilities) > 0):
         i = choice(list(all_possibilities))
         all_possibilities.remove(i)
-        print("END")
-    print("PASSED")
-    passed = True
-    for condition in last_conditionals:
-        print("PASSED1")
-        if not condition(instrumentation, get_args(args, condition.args, i)):
-            print("PASSED2")
-            passed = False
-    if passed:
-        return (True, i)
-    print("MHERE")
+        passed = True
+        new_inst = instrumentation.new()
+        test(new_inst, get_args(args, new_conditional.args, i))
+        if new_conditional.name in new_inst.conditional_to_count:
+            return (True, i)
 
     # Backtracking phase
     B1 = set()
@@ -94,11 +91,15 @@ def find_input(
     for statement in backwards_conditionals:
         B = set(statement.args)
         B2 = (B - B1).pop()
-        for j in range(2**8):
+        all_possibilities = set([
+            tuple(combo) for combo in combinations(
+                range(2**8), len(statement.args)
+            )
+        ])
+        for j in all_possibilities:
             inst = Instrumentation()
-            test(inst, get_args(args, statement.args, [j]))
+            test(inst, get_args(args, statement.args, j))
             if statement in inst.current_run:
-                #self.next_val = j
                 return (True, j)
         B1.union(B)
     return (False, -1)

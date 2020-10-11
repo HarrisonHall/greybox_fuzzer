@@ -28,4 +28,6 @@ class Test():
 
     def __repr__(self):
         return str(self)
-        
+
+    def copy(self):
+        return Test(self.name, self.function, self.branches, self.arguments)

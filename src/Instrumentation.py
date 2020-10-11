@@ -30,6 +30,7 @@ class Instrumentation:
     def add_success(self, args, conditional):
         self.current_run.append(conditional)
         targs = tuple(args)
+        self.conditional_to_count[conditional.name] = self.conditional_to_count.get(conditional.name, 0) + 1
         """
         if targs in self.value_to_condionals:
             self.value_to_condionals[targs].append(conditional)
@@ -56,4 +57,7 @@ class Instrumentation:
         """
         Returns the number of unique branches visited.
         """
-        return len(self.position_to_values)
+        return len(self.conditional_to_count)
+
+    def new(self):
+        return Instrumentation()
